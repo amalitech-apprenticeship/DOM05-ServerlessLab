@@ -1,0 +1,8 @@
+import { NOTIFICATION_TYPE } from '../../api/contract'
+
+export const NOTIFICATION_ICONS = {
+  [NOTIFICATION_TYPE.ASSIGNMENT]: '✦',
+  [NOTIFICATION_TYPE.DEADLINE]: '◷',
+  [NOTIFICATION_TYPE.UPDATE]: '↻',
+  [NOTIFICATION_TYPE.COMMENT]: '“',
+}
