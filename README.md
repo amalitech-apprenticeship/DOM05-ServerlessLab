@@ -56,7 +56,7 @@ NF-02: All Lambda errors shall be logged to CloudWatch.
 ### API Endpoints
 
 
-### Tasks
+#### Tasks
 
 | CRUD | Method | Endpoint | What it does | Who | Req | Success Code |
 |---|---|---|---|---|---|---|
@@ -68,14 +68,14 @@ NF-02: All Lambda errors shall be logged to CloudWatch.
 | Update | PATCH | `/tasks/{taskId}/status` | Change status, only along allowed transitions | Admin, Member (own tasks) | TM-02 | 200 OK |
 | Delete | DELETE | `/tasks/{taskId}` | Delete a task | Admin | ADM-04, TM-03 | 204 No Content |
 
-### Comments
+#### Comments
 
 | CRUD | Method | Endpoint | What it does | Who | Req | Success Code |
 |---|---|---|---|---|---|---|
 | Create | POST | `/tasks/{taskId}/comments` | Add a comment | Admin, Member (own tasks) | ADM-07, TM-04 | 201 Created |
 | Read (all) | GET | `/tasks/{taskId}/comments` | List a task's comments | Admin, Member (own tasks) | ADM-07, TM-04 | 200 OK |
 
-### Attachments
+#### Attachments
 
 | CRUD | Method | Endpoint | What it does | Who | Req | Success Code |
 |---|---|---|---|---|---|---|
@@ -84,7 +84,7 @@ NF-02: All Lambda errors shall be logged to CloudWatch.
 | Read (one) | GET | `/tasks/{taskId}/attachments/{attachmentId}` | Return a pre-signed download URL | Admin, Member (own tasks) | SEC-03 | 200 OK |
 | Delete | DELETE | `/tasks/{taskId}/attachments/{attachmentId}` | Remove an attachment | Admin | ADM-04 | 204 No Content |
 
-### Members
+#### Members
 
 | CRUD | Method | Endpoint | What it does | Who | Req | Success Code |
 |---|---|---|---|---|---|---|
@@ -94,7 +94,7 @@ NF-02: All Lambda errors shall be logged to CloudWatch.
 | Update | PATCH | `/members/{memberId}` | Deactivate (or reactivate) a member, e.g. `{"active": false}` | Admin | ADM-08 | 200 OK |
 | Read (one) | GET | `/me` | Get the logged-in user's own profile and role (the frontend uses this to show the right screens) | Admin, Member | SEC-02 | 200 OK |
 
-### Notifications (in-app)
+#### Notifications (in-app)
 
 | CRUD | Method | Endpoint | What it does | Who | Req | Success Code |
 |---|---|---|---|---|---|---|
@@ -102,7 +102,9 @@ NF-02: All Lambda errors shall be logged to CloudWatch.
 | Update | PATCH | `/notifications/{notificationId}` | Mark one as read, e.g. `{"read": true}` | Admin, Member (own) | NOT-02 | 200 OK |
 | Update (all) | PATCH | `/notifications` | Mark all of the caller's notifications as read, e.g. `{"read": true}` | Admin, Member (own) | NOT-02 | 200 OK |
 
+### Diagram
 
+![AWS Arch Diagram](Orvia.drawio.svg)
 
 
 
