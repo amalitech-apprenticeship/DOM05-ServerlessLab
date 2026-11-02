@@ -1,13 +1,13 @@
 resource "aws_cognito_user_pool" "this" {
   name = "lab5_users_pool"
-  deletion_protection = "ACTIVE"
+  # deletion_protection = "ACTIVE"
 
   username_attributes      = ["email"]
   auto_verified_attributes = [ "email" ]
 
-  lifecycle {
-    prevent_destroy = true
-  }
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
 
   admin_create_user_config {
     allow_admin_create_user_only = true
@@ -22,12 +22,6 @@ resource "aws_cognito_user_pool" "this" {
       name = "verified_email"
       priority = 1
     }
-  }
-
-  verification_message_template {
-    default_email_option = "CONFIRM_WITH_CODE"
-    email_subject        = "Confirm your new email address"
-    email_message        = "Your verification code is {####}."
   }
 
   password_policy {
@@ -59,16 +53,21 @@ resource "aws_cognito_user_pool_client" "this" {
   name = "lab5-cognito-client"
   user_pool_id = aws_cognito_user_pool.this.id
 
-  explicit_auth_flows = [ "ALLOW_USER_SRP_AUTH" ]
+  explicit_auth_flows = [ "ALLOW_USER_SRP_AUTH", "ALLOW_REFRESH_TOKEN_AUTH" ]
 
   generate_secret = false
   prevent_user_existence_errors = "ENABLED"
   access_token_validity = 1
   id_token_validity = 1
   auth_session_validity = 3
+}
 
-  refresh_token_rotation {
-    feature = "ENABLED"
-    retry_grace_period_seconds = 10
-  }
+resource "aws_cognito_user_group" "admin" {
+  name = "Admin"
+  user_pool_id = aws_cognito_user_pool.this.id
+}
+
+resource "aws_cognito_user_group" "member" {
+  name = "Member"
+  user_pool_id = aws_cognito_user_pool.this.id
 }
