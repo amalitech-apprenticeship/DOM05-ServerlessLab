@@ -46,7 +46,7 @@ NF-02: All Lambda errors shall be logged to CloudWatch.
 
 ### Data model
 
-**Users**: PK id (the Cognito sub), with name, email, role (admin or member), createdAt, and deactivatedAt.
+**Users**: PK id (the Cognito sub), with name, email, createdAt, and deactivatedAt.
 **Tasks**: PK id, with title, description, category, priority, status, dueDate, assigneeId, attachment (S3 key, name, type, size), createdBy, createdAt, updatedAt, archivedAt, history, and executionArn.
 **Comments**: PK taskId, SK createdAt, with id, authorId, body, and attachment.
 **Notifications**: PK recipientId, SK createdAt, with id, type (assignment, deadline, update, comment), taskId, title, message, and read.
