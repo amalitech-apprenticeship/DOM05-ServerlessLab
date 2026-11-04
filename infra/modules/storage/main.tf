@@ -106,3 +106,36 @@ resource "aws_dynamodb_table" "notifications" {
   }
 }
 
+# S3 STORAGE
+
+resource "aws_s3_bucket" "attachments" {
+  bucket = "orvia-attachments-storage-2026"
+#   force_destroy = true
+}
+
+resource "aws_s3_bucket_versioning" "this" {
+  bucket = aws_s3_bucket.attachments.id
+  versioning_configuration {
+    status = "DISABLED"
+  }
+}
+
+resource "aws_s3_bucket_cors_configuration" "this" {
+  bucket = aws_s3_bucket.attachments.id
+
+  cors_rule {
+    allowed_origins = var.allowed_origins
+    allowed_methods = [ "GET", "PUT" ]
+    allowed_headers = ["*"]
+    max_age_seconds = 3000
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "this" {
+  bucket = aws_s3_bucket.attachments.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
