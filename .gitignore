@@ -48,3 +48,5 @@ tfplan
 
 .terraformrc
 terraform.rc
+
+build/
