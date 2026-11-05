@@ -1,9 +1,6 @@
 terraform {
+  required_version = ">= 1.5"
   required_providers {
-    terraform = {
-      source = "hashicorp/terraform"
-      version = "~> 1.17"
-    }
     aws ={
         source = "hashicorp/aws"
         version = "~> 6.0"
@@ -28,23 +25,23 @@ resource "random_string" "this" {
 
 resource "aws_s3_bucket" "this" {
   bucket = "lab-five-${random_string.this.result}"
-  object_lock_enabled = true
+  # object_lock_enabled = true
 }
 
-resource "aws_s3_bucket_versioning" "this" {
-  bucket = aws_s3_bucket.this.id
+# resource "aws_s3_bucket_versioning" "this" {
+#   bucket = aws_s3_bucket.this.id
 
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
+#   versioning_configuration {
+#     status = "Enabled"
+#   }
+# }
 
-resource "aws_s3_bucket_object_lock_configuration" "this" {
-  bucket = aws_s3_bucket.this.id
+# resource "aws_s3_bucket_object_lock_configuration" "this" {
+#   bucket = aws_s3_bucket.this.id
 
-  rule {
-    default_retention {
-      days = 7
-    }
-  }
-}
+#   rule {
+#     default_retention {
+#       days = 7
+#     }
+#   }
+# }

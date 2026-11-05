@@ -116,7 +116,7 @@ resource "aws_s3_bucket" "attachments" {
 resource "aws_s3_bucket_versioning" "this" {
   bucket = aws_s3_bucket.attachments.id
   versioning_configuration {
-    status = "DISABLED"
+    status = "Disabled"
   }
 }
 
