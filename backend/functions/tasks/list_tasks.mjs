@@ -13,7 +13,7 @@ export const handler = async (event) =>{
             .replace(/[[\]]/g, "")
             .split(/[\s,]+/)
             .filter(Boolean);
-        const isAdmin = groups.includes("admin");
+        const isAdmin = groups.includes("Admin");
         const userId = claims.sub;
 
         const result = isAdmin

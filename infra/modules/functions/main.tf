@@ -15,7 +15,7 @@ resource "aws_lambda_function" "list_tasks" {
 
   environment {
     variables = {
-      TASKS_TABLE = var.tables.tasks.name
+      TASKS_TABLE_NAME = var.tables.tasks.name
     }
   }
 

@@ -14,6 +14,7 @@ resource "aws_cognito_user_pool" "this" {
     invite_message_template {
       email_subject =  "Welcome to the Team"
       email_message = "Hello, your account using the email {username} has been created, your temporary password is {####}. Please log in and change it."
+      sms_message = "Hello, your account using the email {username} has been created, your temporary password is {####}. Please log in and change it."
     }
   }
 
@@ -53,7 +54,7 @@ resource "aws_cognito_user_pool_client" "this" {
   name = "lab5-cognito-client"
   user_pool_id = aws_cognito_user_pool.this.id
 
-  explicit_auth_flows = [ "ALLOW_USER_SRP_AUTH", "ALLOW_REFRESH_TOKEN_AUTH" ]
+  explicit_auth_flows = [ "ALLOW_USER_SRP_AUTH", "ALLOW_REFRESH_TOKEN_AUTH", "ALLOW_USER_PASSWORD_AUTH" ]
 
   generate_secret = false
   prevent_user_existence_errors = "ENABLED"
