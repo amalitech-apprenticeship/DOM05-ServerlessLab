@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Avatar from '../Layout/Avatar'
 import Icon from '../Layout/Icon'
+import { MemberRowsSkeleton } from '../others/LoadingSkeletons'
 import Modal from '../Layout/Modal'
 import MemberForm from './MemberForm'
 import { TASK_STATUS } from '../../api/contract'
@@ -143,8 +144,9 @@ const TeamMembers = ({ members, tasks, loading, error, onCreate, onUpdate, onDea
         <div className='overflow-auto'>
           <table className='data-table table-middle' aria-label='Team members'>
             <thead><tr><th>Member</th><th>Email</th><th>Open tasks</th><th>Completed</th><th>Added</th><th><span className='sr-only'>Actions</span></th></tr></thead>
-            <tbody>
-              {loading && <tr><td colSpan={6} className='muted'>Loading team…</td></tr>}
+            <tbody aria-busy={loading || undefined}>
+              {loading && <tr className='sr-only'><td colSpan={6} role='status'>Loading team…</td></tr>}
+              {loading && <MemberRowsSkeleton />}
               {!loading && members.length === 0 && <tr><td colSpan={6} className='muted'>No team members yet. Add one to start assigning work.</td></tr>}
               {!loading && members.length > 0 && visible.length === 0 && <tr><td colSpan={6} className='muted'>No team members match these filters.</td></tr>}
               {visible.map((member) => (

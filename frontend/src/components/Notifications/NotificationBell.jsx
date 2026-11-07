@@ -2,10 +2,11 @@ import React, { useEffect, useRef, useState } from 'react'
 import { formatDateTime } from '../../utils/dates'
 import { NOTIFICATION_ICONS } from './icons'
 import Icon from '../Layout/Icon'
+import { NotificationRowsSkeleton } from '../others/LoadingSkeletons'
 
 const PANEL_LIMIT = 8
 
-const NotificationBell = ({ notifications, onMarkRead, onMarkAllRead, onSeeAll }) => {
+const NotificationBell = ({ notifications, loading = false, onMarkRead, onMarkAllRead, onSeeAll }) => {
   const [open, setOpen] = useState(false)
   const containerRef = useRef(null)
   const unread = notifications.filter((item) => !item.read).length
@@ -35,7 +36,12 @@ const NotificationBell = ({ notifications, onMarkRead, onMarkAllRead, onSeeAll }
             <strong>Notifications</strong>
             <button type='button' className='link-button' onClick={onMarkAllRead} disabled={unread === 0}>Mark all read</button>
           </div>
-          {notifications.length === 0 ? <p className='muted notif-empty'>You’re all caught up.</p> : (
+          {loading ? (
+            <ul aria-busy='true'>
+              <li className='sr-only' role='status'>Loading notifications…</li>
+              <NotificationRowsSkeleton rows={3} />
+            </ul>
+          ) : notifications.length === 0 ? <p className='muted notif-empty'>You’re all caught up.</p> : (
             <ul>
               {notifications.slice(0, PANEL_LIMIT).map((item) => (
                 <li key={item.id}>

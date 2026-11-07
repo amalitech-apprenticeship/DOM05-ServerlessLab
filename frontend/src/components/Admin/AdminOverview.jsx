@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import StatCard from '../others/StatCard'
+import Skeleton from '../others/Skeleton'
 import Icon from '../Layout/Icon'
 import StatusPipeline from './StatusPipeline'
 import AttentionQueue from './AttentionQueue'
@@ -11,7 +12,7 @@ import { TASK_STATUS } from '../../api/contract'
 import { DEADLINE_STATE, getAttentionTasks, getDeadlineState } from '../../utils/deadlines'
 import { greeting } from '../../utils/people'
 
-const AdminOverview = ({ tasks, members, nameOf, now, onOpen, onViewBoard, onNewTask }) => {
+const AdminOverview = ({ tasks, members, membersLoading = false, nameOf, now, onOpen, onViewBoard, onNewTask }) => {
   const { user } = useAuth()
   const [statusFilter, setStatusFilter] = useState('all')
 
@@ -47,7 +48,14 @@ const AdminOverview = ({ tasks, members, nameOf, now, onOpen, onViewBoard, onNew
         <StatCard label='Overdue / at risk' value={overdue.length} icon='alert' tone='danger' note={attention.length ? `${attention.length} flagged` : undefined}>
           <span>{counts[TASK_STATUS.BLOCKED]} need attention</span>
         </StatCard>
-        <StatCard label='Team coverage' value={`${busyMembers}/${members.length}`} icon='users' tone='purple' note='members busy'>
+        <StatCard
+          label='Team coverage'
+          value={membersLoading ? <><Skeleton variant='block' width={72} height={34} /><span className='sr-only'>Loading…</span></> : `${busyMembers}/${members.length}`}
+          icon='users'
+          tone='purple'
+          note={membersLoading ? undefined : 'members busy'}
+          busy={membersLoading}
+        >
           <span>{unassigned.length} unassigned</span>{unassigned.length > 0 && <button type='button' className='table-link' onClick={onViewBoard}>Assign now →</button>}
         </StatCard>
       </div>
@@ -58,7 +66,7 @@ const AdminOverview = ({ tasks, members, nameOf, now, onOpen, onViewBoard, onNew
       </div>
 
       <div className='grid-main'>
-        <TeamWorkload tasks={tasks} members={members} now={now} />
+        <TeamWorkload tasks={tasks} members={members} now={now} loading={membersLoading} />
         <LiveActivity tasks={tasks} nameOf={nameOf} onOpen={onOpen} />
       </div>
 

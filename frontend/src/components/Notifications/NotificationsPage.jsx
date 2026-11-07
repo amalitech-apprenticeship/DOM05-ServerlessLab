@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Icon from '../Layout/Icon'
+import { NotificationGroupSkeleton } from '../others/LoadingSkeletons'
 import { NOTIFICATION_ICONS } from './icons'
 import { NOTIFICATION_TYPE } from '../../api/contract'
 import { addDays, toDateInput } from '../../utils/dates'
@@ -25,7 +26,7 @@ const formatTime = (iso, group) =>
     : { hour: 'numeric', minute: '2-digit' })
 
 // canOpenTask(taskId) -> boolean: whether to show "View task" (the task may be deleted or hidden).
-const NotificationsPage = ({ notifications, now, onMarkRead, onMarkAllRead, canOpenTask, onOpenTask, onBack }) => {
+const NotificationsPage = ({ notifications, loading = false, now, onMarkRead, onMarkAllRead, canOpenTask, onOpenTask, onBack }) => {
   const [unreadOnly, setUnreadOnly] = useState(false)
   const [type, setType] = useState('all')
 
@@ -67,7 +68,7 @@ const NotificationsPage = ({ notifications, now, onMarkRead, onMarkAllRead, canO
         </div>
       </div>
 
-      {groups.length === 0 ? (
+      {loading ? <NotificationGroupSkeleton /> : groups.length === 0 ? (
         <div className='card empty-state'>
           <Icon name='bell' size={28} />
           <h2>{notifications.length ? 'Nothing matches these filters' : 'No notifications yet'}</h2>

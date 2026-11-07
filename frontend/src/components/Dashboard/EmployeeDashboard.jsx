@@ -16,6 +16,7 @@ import { useNow } from '../../hooks/useNow'
 import { useDeadlineReminder } from '../../hooks/useDeadlineReminder'
 import { POLL_INTERVAL_MS, useTasks } from '../../hooks/useTasks'
 import { useNotifications } from '../../hooks/useNotifications'
+import { ViewSkeleton } from '../others/LoadingSkeletons'
 import { TASK_STATUS } from '../../api/contract'
 import { greeting, makeNameOf, matchesSearch } from '../../utils/people'
 
@@ -24,7 +25,7 @@ const EmployeeDashboard = () => {
   const now = useNow()
   const { tasks: allTasks, loading, error, refresh, updateTask, updateTaskStatus, addComment, deleteComment } = useTasks({ pollMs: POLL_INTERVAL_MS })
   const tasks = useMemo(() => allTasks.filter((task) => !task.archivedAt), [allTasks])
-  const { notifications, toasts, markRead, markAllRead, dismissToast } = useNotifications({ onNew: refresh })
+  const { notifications, loading: notificationsLoading, toasts, markRead, markAllRead, dismissToast } = useNotifications({ onNew: refresh })
   const [view, setView] = useState('dashboard')
   const [selectedId, setSelectedId] = useState(null)
   const [search, setSearch] = useState('')
@@ -84,10 +85,10 @@ const EmployeeDashboard = () => {
       onNavigate={setView}
       search={search}
       onSearch={onSearch}
-      notifications={<NotificationBell notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onSeeAll={() => setView('notifications')} />}
+      notifications={<NotificationBell notifications={notifications} loading={notificationsLoading} onMarkRead={markRead} onMarkAllRead={markAllRead} onSeeAll={() => setView('notifications')} />}
     >
       {(error || actionError) && <p className='banner-error' role='alert'>{error || actionError}</p>}
-      {loading ? <p className='muted'>Loading tasks…</p> : (
+      {loading ? <ViewSkeleton view={view} /> : (
         <>
           {view === 'dashboard' && (
             <>
@@ -118,6 +119,7 @@ const EmployeeDashboard = () => {
           {view === 'notifications' && (
             <NotificationsPage
               notifications={notifications}
+              loading={notificationsLoading}
               now={now}
               onMarkRead={markRead}
               onMarkAllRead={markAllRead}

@@ -15,6 +15,7 @@ import { useAuth } from '../../context/AuthContext'
 import { POLL_INTERVAL_MS, useTasks } from '../../hooks/useTasks'
 import { useMembers } from '../../hooks/useMembers'
 import { useNotifications } from '../../hooks/useNotifications'
+import { ViewSkeleton } from '../others/LoadingSkeletons'
 import { useNow } from '../../hooks/useNow'
 import { TASK_STATUS } from '../../api/contract'
 import { makeNameOf, matchesSearch } from '../../utils/people'
@@ -24,7 +25,7 @@ const AdminDashboard = () => {
   const now = useNow()
   const { tasks, loading, error, refresh, createTask, updateTask, assignTask, updateTaskStatus, archiveTask, unarchiveTask, deleteTask, addComment, deleteComment } = useTasks({ pollMs: POLL_INTERVAL_MS })
   const { members, everyone, loading: membersLoading, error: membersError, createMember, updateMember, deactivateMember, reactivateMember } = useMembers()
-  const { notifications, toasts, markRead, markAllRead, dismissToast } = useNotifications({ onNew: refresh })
+  const { notifications, loading: notificationsLoading, toasts, markRead, markAllRead, dismissToast } = useNotifications({ onNew: refresh })
   const [view, setView] = useState('dashboard')
   const [selectedId, setSelectedId] = useState(null)
   const [modal, setModal] = useState(null) // null | { task } (task is null when creating)
@@ -116,7 +117,7 @@ const AdminDashboard = () => {
       search={search}
       onSearch={onSearch}
       actions={<button type='button' className='btn btn-primary' onClick={() => setModal({ task: null })}><Icon name='plus' size={16} /> New task</button>}
-      notifications={<NotificationBell notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onSeeAll={() => setView('notifications')} />}
+      notifications={<NotificationBell notifications={notifications} loading={notificationsLoading} onMarkRead={markRead} onMarkAllRead={markAllRead} onSeeAll={() => setView('notifications')} />}
     >
       {(error || actionError) && <p className='banner-error' role='alert'>{error || actionError}</p>}
       {archiveNotice && view !== 'team' && (
@@ -131,10 +132,10 @@ const AdminDashboard = () => {
       {view === 'team' && (
         <TeamMembers members={everyone} tasks={tasks} loading={membersLoading} error={membersError} onCreate={createMember} onUpdate={updateMember} onDeactivate={deactivateTeamMember} onReactivate={reactivateMember} />
       )}
-      {view !== 'team' && (loading ? <p className='muted'>Loading tasks…</p> : (
+      {view !== 'team' && (loading ? <ViewSkeleton view={view} admin /> : (
         <>
           {view === 'dashboard' && (
-            <AdminOverview tasks={activeTasks} members={members} nameOf={nameOf} now={now} onOpen={openTask} onViewBoard={() => setView('board')} onNewTask={() => setModal({ task: null })} />
+            <AdminOverview tasks={activeTasks} members={members} membersLoading={membersLoading} nameOf={nameOf} now={now} onOpen={openTask} onViewBoard={() => setView('board')} onNewTask={() => setModal({ task: null })} />
           )}
           {view === 'board' && (
             <BoardPage
@@ -162,6 +163,7 @@ const AdminDashboard = () => {
           {view === 'notifications' && (
             <NotificationsPage
               notifications={notifications}
+              loading={notificationsLoading}
               now={now}
               onMarkRead={markRead}
               onMarkAllRead={markAllRead}

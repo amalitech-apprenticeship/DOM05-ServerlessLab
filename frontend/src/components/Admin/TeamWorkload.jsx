@@ -1,15 +1,17 @@
 import React from 'react'
 import Avatar from '../Layout/Avatar'
+import { WorkloadRowsSkeleton } from '../others/LoadingSkeletons'
 import { TASK_STATUS, TASK_STATUS_LABELS } from '../../api/contract'
 import { DEADLINE_STATE, getDeadlineState } from '../../utils/deadlines'
 
-const TeamWorkload = ({ tasks, members, now }) => (
-  <section className='card panel' aria-label='Team workload'>
+const TeamWorkload = ({ tasks, members, now, loading = false }) => (
+  <section className='card panel' aria-label='Team workload' aria-busy={loading || undefined}>
     <div className='panel-head'>
       <div><h2 className='panel-title'>Team workload</h2><p className='muted'>Open work and completion per team member</p></div>
     </div>
     <ul className='workload'>
-      {members.map((member) => {
+      {loading && <li className='sr-only' role='status'>Loading team workload…</li>}
+      {loading ? <WorkloadRowsSkeleton /> : members.map((member) => {
         const own = tasks.filter((task) => task.assigneeId === member.id)
         const done = own.filter((task) => task.status === TASK_STATUS.COMPLETED).length
         const overdue = own.filter((task) => getDeadlineState(task, now) === DEADLINE_STATE.OVERDUE).length

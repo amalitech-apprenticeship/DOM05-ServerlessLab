@@ -10,6 +10,8 @@ export const useNotifications = ({ pollMs = POLL_INTERVAL_MS, onNew } = {}) => {
   const api = useApi()
   const [notifications, setNotifications] = useState([])
   const [toasts, setToasts] = useState([])
+  // True until the first fetch settles (success or failure), so the UI doesn't claim "all caught up" too early.
+  const [loading, setLoading] = useState(true)
   const seenIds = useRef(null)
   // Responses to superseded requests are ignored, so a slow poll can't undo a mark-read.
   const latestRequest = useRef(0)
@@ -19,6 +21,7 @@ export const useNotifications = ({ pollMs = POLL_INTERVAL_MS, onNew } = {}) => {
   const refresh = useCallback(async () => {
     const requestId = ++latestRequest.current
     const list = await api.notifications.list().catch(() => null)
+    setLoading(false)
     if (!list || requestId !== latestRequest.current) return
     if (seenIds.current) {
       const fresh = list.filter((item) => !item.read && !seenIds.current.has(item.id))
@@ -54,5 +57,5 @@ export const useNotifications = ({ pollMs = POLL_INTERVAL_MS, onNew } = {}) => {
 
   const dismissToast = useCallback((id) => setToasts((current) => current.filter((item) => item.id !== id)), [])
 
-  return { notifications, toasts, refresh, markRead, markAllRead, dismissToast }
+  return { notifications, loading, toasts, refresh, markRead, markAllRead, dismissToast }
 }
