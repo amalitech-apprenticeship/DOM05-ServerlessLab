@@ -1,8 +1,8 @@
 output "functions_details" {
-    value = {
-        list_tasks = {
-            name = aws_lambda_function.list_tasks.function_name, 
-            invoke_arn = aws_lambda_function.list_tasks.invoke_arn
-        }
+  value = {
+    for key, fn in aws_lambda_function.this : key => {
+      name       = fn.function_name
+      invoke_arn = fn.invoke_arn
     }
+  }
 }

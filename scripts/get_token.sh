@@ -28,4 +28,4 @@ API_URL="${API_URL%/}"
 export TOKEN API_URL
 
 echo "Logged in as $LOGIN_EMAIL. TOKEN exported (valid for about 1 hour)."
-[ -n "$API_URL" ] && echo "Try: curl -i -H \"Authorization: \$TOKEN\" \"\$API_URL/tasks\""
+[ -n "$API_URL" ] && echo "API: $API_URL — see scripts/requests.md for test commands."

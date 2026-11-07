@@ -1,6 +1,7 @@
 locals {
   routes = {
     list_tasks = "GET /tasks"
+    create_task = "POST /tasks"
   }
 }
 

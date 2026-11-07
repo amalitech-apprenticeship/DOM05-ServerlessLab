@@ -12,26 +12,27 @@ data "aws_iam_policy_document" "assume_role" {
 data "aws_iam_policy_document" "tasks_access_dynamo" {
   statement {
     effect = "Allow"
-    actions = [ 
-        "dynamodb:Scan",
-        "dynamodb:Query"
-     ]
-     resources = [var.tables.tasks.arn, "${var.tables.tasks.arn}/index/*"]
+    actions = [
+      "dynamodb:Scan",
+      "dynamodb:Query",
+      "dynamodb:PutItem"
+    ]
+    resources = [var.tables.tasks.arn, "${var.tables.tasks.arn}/index/*"]
   }
 }
 
 resource "aws_iam_role" "tasks" {
-  name = "orvia-tasks-lambda"
+  name               = "orvia-tasks-lambda"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role_policy" "tasks_access" {
-  name = "tasks-access"
-  role = aws_iam_role.tasks.id
+  name   = "tasks-access"
+  role   = aws_iam_role.tasks.id
   policy = data.aws_iam_policy_document.tasks_access_dynamo.json
 }
 
 resource "aws_iam_role_policy_attachment" "tasks_log" {
-  role = aws_iam_role.tasks.name
+  role       = aws_iam_role.tasks.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
