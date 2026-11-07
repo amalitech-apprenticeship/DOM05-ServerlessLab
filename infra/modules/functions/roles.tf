@@ -15,7 +15,10 @@ data "aws_iam_policy_document" "tasks_access_dynamo" {
     actions = [
       "dynamodb:Scan",
       "dynamodb:Query",
-      "dynamodb:PutItem"
+      "dynamodb:PutItem",
+      "dynamodb:GetItem",
+      "dynamodb:UpdateItem",
+      "dynamodb:DeleteItem"
     ]
     resources = [var.tables.tasks.arn, "${var.tables.tasks.arn}/index/*"]
   }

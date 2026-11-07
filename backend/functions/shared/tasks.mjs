@@ -1,8 +1,8 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 
-const db = DynamoDBDocumentClient.from(new DynamoDBClient({}));
-const TABLE_NAME = process.env.TASKS_TABLE_NAME;
+export const db = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+export const TABLE_NAME = process.env.TASKS_TABLE_NAME;
 
 export const PRIORITIES = ["low", "medium", "high", "urgent"];
 export const STATUSES = ["new", "to_do", "in_progress", "completed", "blocked"];

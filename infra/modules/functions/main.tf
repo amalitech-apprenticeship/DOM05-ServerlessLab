@@ -20,6 +20,31 @@ locals {
       role    = "tasks"
       env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
     }
+    update_task = {
+      handler = "tasks/update_task.handler"
+      role    = "tasks"
+      env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+    }
+    assign_task = {
+      handler = "tasks/assign_task.handler"
+      role    = "tasks"
+      env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+    }
+    update_status = {
+      handler = "tasks/update_status.handler"
+      role    = "tasks"
+      env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+    }
+    get_task = {
+      handler = "tasks/get_task.handler"
+      role    = "tasks"
+      env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+    }
+    delete_task = {
+      handler = "tasks/delete_task.handler"
+      role    = "tasks"
+      env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+    }
   }
 }
 
