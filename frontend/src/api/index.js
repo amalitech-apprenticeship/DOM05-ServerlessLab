@@ -8,6 +8,8 @@ const buildEnv = () => ({
   PROD: import.meta.env.PROD,
   VITE_API_MODE: import.meta.env.VITE_API_MODE,
   VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+  VITE_COGNITO_USER_POOL_ID: import.meta.env.VITE_COGNITO_USER_POOL_ID,
+  VITE_COGNITO_CLIENT_ID: import.meta.env.VITE_COGNITO_CLIENT_ID,
   VITE_ALLOW_MOCK_IN_PRODUCTION: import.meta.env.VITE_ALLOW_MOCK_IN_PRODUCTION,
 })
 
@@ -15,7 +17,13 @@ const buildEnv = () => ({
 // mode, or for mock mode in a production build unless VITE_ALLOW_MOCK_IN_PRODUCTION is 'true'.
 export const createApi = (env = buildEnv()) => {
   const mode = env.VITE_API_MODE || 'mock'
-  if (mode === 'http') return createHttpAdapter({ baseUrl: env.VITE_API_BASE_URL })
+  if (mode === 'http') {
+    return createHttpAdapter({
+      baseUrl: env.VITE_API_BASE_URL,
+      userPoolId: env.VITE_COGNITO_USER_POOL_ID,
+      userPoolClientId: env.VITE_COGNITO_CLIENT_ID,
+    })
+  }
   if (mode !== 'mock') throw new ApiConfigError(`Unknown VITE_API_MODE "${mode}". Use "http" or "mock".`)
   if (env.PROD && env.VITE_ALLOW_MOCK_IN_PRODUCTION !== 'true') {
     throw new ApiConfigError(
