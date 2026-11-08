@@ -9,3 +9,7 @@ variable "allowed_methods" {
 variable "allowed_headers" {
   type = list(string)
 }
+
+variable "admin_email" {
+  type = string
+}

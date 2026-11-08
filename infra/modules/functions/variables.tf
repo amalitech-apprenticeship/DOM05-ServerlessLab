@@ -12,3 +12,7 @@ variable "user_pool_arn" {
 variable "user_pool_id" {
   type = string
 }
+
+variable "topic_arn" {
+  type = string
+}

@@ -4,5 +4,5 @@ export const getUser = (event) => {
     .replace(/[[\]]/g, "")
     .split(/[\s,]+/)
     .filter(Boolean);
-  return { id: claims.sub, isAdmin: groups.includes("admin") };
+  return { id: claims.sub, name: claims.name ?? "", isAdmin: groups.includes("admin") };
 };

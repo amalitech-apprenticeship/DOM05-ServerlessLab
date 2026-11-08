@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 # ----------------- TASKS ROLES --------------------------------
-data "aws_iam_policy_document" "tasks_access_dynamo" {
+data "aws_iam_policy_document" "tasks_access" {
   statement {
     effect = "Allow"
     actions = [
@@ -23,6 +23,12 @@ data "aws_iam_policy_document" "tasks_access_dynamo" {
     ]
     resources = [var.tables.tasks.arn, "${var.tables.tasks.arn}/index/*"]
   }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["sns:Publish"]
+    resources = [var.topic_arn]
+  }
 }
 
 resource "aws_iam_role" "tasks" {
@@ -33,7 +39,7 @@ resource "aws_iam_role" "tasks" {
 resource "aws_iam_role_policy" "tasks_access" {
   name   = "tasks-access"
   role   = aws_iam_role.tasks.id
-  policy = data.aws_iam_policy_document.tasks_access_dynamo.json
+  policy = data.aws_iam_policy_document.tasks_access.json
 }
 
 resource "aws_iam_role_policy_attachment" "tasks_log" {
@@ -80,6 +86,12 @@ data "aws_iam_policy_document" "members_access" {
       "${var.tables.tasks.arn}/index/*"
     ]
   }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["sns:Subscribe"]
+    resources = [var.topic_arn]
+  }
 }
 
 resource "aws_iam_role" "members" {
@@ -98,3 +110,32 @@ resource "aws_iam_role_policy_attachment" "members_logs" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# --------------------- NOTIFICATIONS ROLES ----------------------------------
+
+data "aws_iam_policy_document" "notifications_access" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:PutItem",
+      "dynamodb:Query",
+      "dynamodb:UpdateItem"
+    ]
+    resources = [var.tables.notifications.arn]
+  }
+}
+
+resource "aws_iam_role" "notifications" {
+  name               = "orvia-notifications-lambda"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+resource "aws_iam_role_policy" "notifications_access" {
+  name   = "notifications-access"
+  role   = aws_iam_role.notifications.id
+  policy = data.aws_iam_policy_document.notifications_access.json
+}
+
+resource "aws_iam_role_policy_attachment" "notifications_logs" {
+  role       = aws_iam_role.notifications.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}

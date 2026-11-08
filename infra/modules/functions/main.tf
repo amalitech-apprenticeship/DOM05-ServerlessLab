@@ -6,16 +6,25 @@ data "archive_file" "functions" {
 
 locals {
   roles = {
-    tasks   = aws_iam_role.tasks.arn
-    members = aws_iam_role.members.arn
+    tasks         = aws_iam_role.tasks.arn
+    members       = aws_iam_role.members.arn
+    notifications = aws_iam_role.notifications.arn
   }
 
-  tasks_env = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+  tasks_env = tomap({
+    TASKS_TABLE_NAME = var.tables.tasks.name
+    TOPIC_ARN        = var.topic_arn
+  })
 
   members_env = tomap({
     USERS_TABLE_NAME = var.tables.users.name
     TASKS_TABLE_NAME = var.tables.tasks.name
     USER_POOL_ID     = var.user_pool_id
+    TOPIC_ARN        = var.topic_arn
+  })
+
+  notifications_env = tomap({
+    NOTIFICATIONS_TABLE_NAME = var.tables.notifications.name
   })
 
   functions = {
@@ -79,6 +88,11 @@ locals {
       handler = "me/get_me.handler"
       role    = "members"
       env     = local.members_env
+    }
+    save_notification = {
+      handler = "jobs/save_notification.handler"
+      role    = "notifications"
+      env     = local.notifications_env
     }
   }
 }

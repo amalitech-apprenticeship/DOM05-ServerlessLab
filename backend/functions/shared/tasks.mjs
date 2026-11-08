@@ -1,5 +1,9 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  GetCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
 
 export const db = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 export const TABLE_NAME = process.env.TASKS_TABLE_NAME;
@@ -12,6 +16,13 @@ export const MEMBER_STATUS_TRANSITIONS = {
   in_progress: ["completed", "blocked"],
   blocked: ["in_progress"],
   completed: [],
+};
+export const STATUS_LABELS = {
+  new: "New",
+  to_do: "To do",
+  in_progress: "In progress",
+  completed: "Completed",
+  blocked: "Needs attention",
 };
 
 export const isValidDate = (value) =>
@@ -27,7 +38,9 @@ export const toTask = (item) => ({
 });
 
 export const getTask = async (id) => {
-  const result = await db.send(new GetCommand({ TableName: TABLE_NAME, Key: { id } }));
+  const result = await db.send(
+    new GetCommand({ TableName: TABLE_NAME, Key: { id } }),
+  );
   return result.Item;
 };
 
@@ -35,8 +48,16 @@ export const applyUpdate = async (id, fields, entry, options = {}) => {
   const { remove = [], condition, conditionValues = {} } = options;
 
   const names = { "#updatedAt": "updatedAt", "#history": "history" };
-  const values = { ":updatedAt": entry.at, ":entry": [entry], ":empty": [], ...conditionValues };
-  const sets = ["#updatedAt = :updatedAt", "#history = list_append(if_not_exists(#history, :empty), :entry)"];
+  const values = {
+    ":updatedAt": entry.at,
+    ":entry": [entry],
+    ":empty": [],
+    ...conditionValues,
+  };
+  const sets = [
+    "#updatedAt = :updatedAt",
+    "#history = list_append(if_not_exists(#history, :empty), :entry)",
+  ];
 
   for (const [key, value] of Object.entries(fields)) {
     names[`#${key}`] = key;

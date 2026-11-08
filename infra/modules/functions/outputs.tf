@@ -3,6 +3,7 @@ output "functions_details" {
     for key, fn in aws_lambda_function.this : key => {
       name       = fn.function_name
       invoke_arn = fn.invoke_arn
+      arn        = fn.arn
     }
   }
 }

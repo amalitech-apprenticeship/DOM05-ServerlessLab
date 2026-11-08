@@ -1,6 +1,7 @@
 import { getUser } from "../shared/auth.mjs";
 import { json, parseBody } from "../shared/http.mjs";
 import { toTask, getTask, applyUpdate } from "../shared/tasks.mjs";
+import { notifyAssigned } from "../shared/notify.mjs";
 
 export const handler = async (event) => {
   try {
@@ -11,11 +12,16 @@ export const handler = async (event) => {
 
     const input = parseBody(event);
     if (!input || !("assigneeId" in input)) {
-      return json(400, { error: "assigneeId is required (a user id, or null to unassign)" });
+      return json(400, {
+        error: "assigneeId is required (a user id, or null to unassign)",
+      });
     }
 
     const assigneeId = input.assigneeId;
-    if (assigneeId !== null && (typeof assigneeId !== "string" || !assigneeId)) {
+    if (
+      assigneeId !== null &&
+      (typeof assigneeId !== "string" || !assigneeId)
+    ) {
       return json(400, { error: "assigneeId must be a user id or null" });
     }
 
@@ -30,11 +36,19 @@ export const handler = async (event) => {
       return json(200, toTask(task));
     }
 
-    const entry = { at: new Date().toISOString(), by: user.id, action: "assigned", assigneeId };
+    const entry = {
+      at: new Date().toISOString(),
+      by: user.id,
+      action: "assigned",
+      assigneeId,
+    };
     const updated = assigneeId
       ? await applyUpdate(task.id, { assigneeId }, entry)
       : await applyUpdate(task.id, {}, entry, { remove: ["assigneeId"] });
 
+    if (assigneeId) {
+      await notifyAssigned(updated);
+    }
     return json(200, toTask(updated));
   } catch (error) {
     console.error(error);
