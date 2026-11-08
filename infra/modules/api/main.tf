@@ -7,6 +7,11 @@ locals {
     assign_task   = "PATCH /tasks/{taskId}/assignee",
     update_status = "PATCH /tasks/{taskId}/status",
     delete_task   = "DELETE /tasks/{taskId}",
+    create_member = "POST /members",
+    list_members  = "GET /members",
+    get_member    = "GET /members/{memberId}",
+    update_member = "PATCH /members/{memberId}",
+    get_me        = "GET /me"
   }
 }
 

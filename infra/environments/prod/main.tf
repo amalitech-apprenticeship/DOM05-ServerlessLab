@@ -6,6 +6,8 @@ module "storage" {
 module "functions" {
   source = "../../modules/functions"
   tables = module.storage.tables
+  user_pool_arn = module.auth.cognito_user_pool_arn
+  user_pool_id = module.auth.cognito_user_pool_id
 }
 
 module "auth" {

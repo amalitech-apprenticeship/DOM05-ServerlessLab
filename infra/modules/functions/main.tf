@@ -6,44 +6,79 @@ data "archive_file" "functions" {
 
 locals {
   roles = {
-    tasks = aws_iam_role.tasks.arn
+    tasks   = aws_iam_role.tasks.arn
+    members = aws_iam_role.members.arn
   }
+
+  tasks_env = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+
+  members_env = tomap({
+    USERS_TABLE_NAME = var.tables.users.name
+    TASKS_TABLE_NAME = var.tables.tasks.name
+    USER_POOL_ID     = var.user_pool_id
+  })
 
   functions = {
     list_tasks = {
       handler = "tasks/list_tasks.handler"
       role    = "tasks"
-      env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+      env     = local.tasks_env
     }
     create_task = {
       handler = "tasks/create_task.handler"
       role    = "tasks"
-      env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+      env     = local.tasks_env
     }
     update_task = {
       handler = "tasks/update_task.handler"
       role    = "tasks"
-      env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+      env     = local.tasks_env
     }
     assign_task = {
       handler = "tasks/assign_task.handler"
       role    = "tasks"
-      env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+      env     = local.tasks_env
     }
     update_status = {
       handler = "tasks/update_status.handler"
       role    = "tasks"
-      env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+      env     = local.tasks_env
     }
     get_task = {
       handler = "tasks/get_task.handler"
       role    = "tasks"
-      env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+      env     = local.tasks_env
     }
     delete_task = {
       handler = "tasks/delete_task.handler"
       role    = "tasks"
-      env     = tomap({ TASKS_TABLE_NAME = var.tables.tasks.name })
+      env     = local.tasks_env
+    }
+
+    create_member = {
+      handler = "members/create_member.handler"
+      role    = "members"
+      env     = local.members_env
+    }
+    list_members = {
+      handler = "members/list_members.handler"
+      role    = "members"
+      env     = local.members_env
+    }
+    get_member = {
+      handler = "members/get_member.handler"
+      role    = "members"
+      env     = local.members_env
+    }
+    update_member = {
+      handler = "members/update_member.handler"
+      role    = "members"
+      env     = local.members_env
+    }
+    get_me = {
+      handler = "me/get_me.handler"
+      role    = "members"
+      env     = local.members_env
     }
   }
 }
