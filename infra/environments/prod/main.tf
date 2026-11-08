@@ -4,12 +4,13 @@ module "storage" {
 }
 
 module "functions" {
-  source            = "../../modules/functions"
-  tables            = module.storage.tables
-  user_pool_arn     = module.auth.cognito_user_pool_arn
-  user_pool_id      = module.auth.cognito_user_pool_id
-  topic_arn         = module.events.topic_arn
-  state_machine_arn = module.events.state_machine_arn
+  source             = "../../modules/functions"
+  tables             = module.storage.tables
+  user_pool_arn      = module.auth.cognito_user_pool_arn
+  user_pool_id       = module.auth.cognito_user_pool_id
+  topic_arn          = module.events.topic_arn
+  state_machine_arn  = module.events.state_machine_arn
+  attachments_bucket = module.storage.attachments_bucket
 }
 
 module "auth" {

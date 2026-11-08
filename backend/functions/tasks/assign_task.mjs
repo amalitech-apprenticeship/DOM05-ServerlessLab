@@ -1,12 +1,12 @@
 import { getUser } from "../shared/auth.mjs";
 import { json, parseBody } from "../shared/http.mjs";
-import { toTask, getTask, applyUpdate } from "../shared/tasks.mjs";
+import { getTask, applyUpdate } from "../shared/tasks.mjs";
 import { notifyAssigned } from "../shared/notify.mjs";
 import {
   startDeadline,
-  stopDeadline,
-  restartDeadline,
 } from "../shared/deadlines.mjs";
+
+import { toTaskResponse } from "../shared/attachments.mjs";
 
 export const handler = async (event) => {
   try {
@@ -38,7 +38,7 @@ export const handler = async (event) => {
       return json(409, { error: "Archived tasks are read-only" });
     }
     if ((task.assigneeId ?? null) === assigneeId) {
-      return json(200, toTask(task));
+      return json(200, await toTaskResponse(task));
     }
 
     const entry = {
@@ -53,9 +53,9 @@ export const handler = async (event) => {
 
     if (assigneeId) {
       await notifyAssigned(updated);
-      await restartDeadline(updated);
+      await startDeadline(updated);
     }
-    return json(200, toTask(updated));
+    return json(200, await toTaskResponse(updated));
   } catch (error) {
     console.error(error);
     return json(500, { error: "Internal Server Error" });

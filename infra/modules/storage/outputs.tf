@@ -7,3 +7,10 @@ output "tables" {
   }
 }
 
+output "attachments_bucket" {
+  value = {
+    name = aws_s3_bucket.attachments.bucket
+    arn  = aws_s3_bucket.attachments.arn
+  }
+}
+

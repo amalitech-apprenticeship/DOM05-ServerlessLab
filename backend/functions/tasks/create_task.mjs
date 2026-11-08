@@ -6,8 +6,6 @@ import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { notifyAssigned } from "../shared/notify.mjs";
 import {
   startDeadline,
-  stopDeadline,
-  restartDeadline,
 } from "../shared/deadlines.mjs";
 
 const PRIORITIES = ["low", "medium", "high", "urgent"];

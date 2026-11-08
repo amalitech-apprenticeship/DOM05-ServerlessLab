@@ -45,6 +45,12 @@ data "aws_iam_policy_document" "tasks_access" {
     actions   = ["states:StopExecution"]
     resources = [local.deadline_executions_arn]
   }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
+    resources = ["${var.attachments_bucket.arn}/tasks/*"]
+  }
 }
 
 resource "aws_iam_role" "tasks" {

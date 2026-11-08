@@ -1,20 +1,21 @@
 locals {
   routes = {
-    list_tasks         = "GET /tasks",
-    get_task           = "GET /tasks/{taskId}",
-    create_task        = "POST /tasks",
-    update_task        = "PATCH /tasks/{taskId}",
-    assign_task        = "PATCH /tasks/{taskId}/assignee",
-    update_status      = "PATCH /tasks/{taskId}/status",
-    delete_task        = "DELETE /tasks/{taskId}",
-    create_member      = "POST /members",
-    list_members       = "GET /members",
-    get_member         = "GET /members/{memberId}",
-    update_member      = "PATCH /members/{memberId}",
-    get_me             = "GET /me"
-    list_notifications = "GET /notifications"
-    mark_read          = "PATCH /notifications/{notificationId}"
-    mark_all_read      = "PATCH /notifications"
+    list_tasks               = "GET /tasks",
+    get_task                 = "GET /tasks/{taskId}",
+    create_task              = "POST /tasks",
+    update_task              = "PATCH /tasks/{taskId}",
+    assign_task              = "PATCH /tasks/{taskId}/assignee",
+    update_status            = "PATCH /tasks/{taskId}/status",
+    delete_task              = "DELETE /tasks/{taskId}",
+    create_member            = "POST /members",
+    list_members             = "GET /members",
+    get_member               = "GET /members/{memberId}",
+    update_member            = "PATCH /members/{memberId}",
+    get_me                   = "GET /me"
+    list_notifications       = "GET /notifications"
+    mark_read                = "PATCH /notifications/{notificationId}"
+    mark_all_read            = "PATCH /notifications"
+    create_attachment_upload = "POST /tasks/{taskId}/attachment"
   }
 }
 

@@ -12,9 +12,10 @@ locals {
   }
 
   tasks_env = tomap({
-    TASKS_TABLE_NAME  = var.tables.tasks.name
-    TOPIC_ARN         = var.topic_arn
-    STATE_MACHINE_ARN = var.state_machine_arn
+    TASKS_TABLE_NAME   = var.tables.tasks.name
+    TOPIC_ARN          = var.topic_arn
+    STATE_MACHINE_ARN  = var.state_machine_arn
+    ATTACHMENTS_BUCKET = var.attachments_bucket.name
   })
 
   members_env = tomap({
@@ -110,6 +111,11 @@ locals {
       handler = "notifications/mark_all_read.handler"
       role    = "notifications"
       env     = local.notifications_env
+    }
+    create_attachment_upload = {
+      handler = "tasks/create_attachment_upload.handler"
+      role    = "tasks"
+      env     = local.tasks_env
     }
   }
 }

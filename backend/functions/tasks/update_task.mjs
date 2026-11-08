@@ -3,15 +3,15 @@ import { json, parseBody } from "../shared/http.mjs";
 import {
   PRIORITIES,
   isValidDate,
-  toTask,
   getTask,
   applyUpdate,
 } from "../shared/tasks.mjs";
+import { restartDeadline } from "../shared/deadlines.mjs";
 import {
-  startDeadline,
-  stopDeadline,
-  restartDeadline,
-} from "../shared/deadlines.mjs";
+  toTaskResponse,
+  verifyUpload,
+  deleteAttachment,
+} from "../shared/attachments.mjs";
 
 export const handler = async (event) => {
   try {
@@ -63,6 +63,27 @@ export const handler = async (event) => {
       fields.dueDate = input.dueDate;
     }
 
+    let oldAttachment = null;
+    if (input.attachment !== undefined) {
+      if (input.attachment === null) {
+        if (task.attachment) {
+          fields.attachment = null;
+          oldAttachment = task.attachment;
+        }
+      } else {
+        const attachment = await verifyUpload(task.id, input.attachment);
+        if (!attachment) {
+          return json(400, {
+            error: "Attachment not found. Upload the file first.",
+          });
+        }
+        fields.attachment = attachment;
+        if (task.attachment?.key && task.attachment.key !== attachment.key) {
+          oldAttachment = task.attachment;
+        }
+      }
+    }
+
     if (Object.keys(fields).length === 0) {
       return json(400, { error: "Nothing to update" });
     }
@@ -76,8 +97,11 @@ export const handler = async (event) => {
     if (fields.dueDate && fields.dueDate !== task.dueDate) {
       await restartDeadline(updated);
     }
+    if (oldAttachment) {
+      await deleteAttachment(oldAttachment);
+    }
 
-    return json(200, toTask(updated));
+    return json(200, await toTaskResponse(updated));
   } catch (error) {
     console.error(error);
     return json(500, { error: "Internal Server Error" });

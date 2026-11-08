@@ -20,3 +20,10 @@ variable "topic_arn" {
 variable "state_machine_arn" {
   type = string
 }
+
+variable "attachments_bucket" {
+  type = object({
+    name = string
+    arn  = string
+  })
+}

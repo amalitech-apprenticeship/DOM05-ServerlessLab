@@ -4,16 +4,16 @@ import {
   STATUSES,
   MEMBER_STATUS_TRANSITIONS,
   STATUS_LABELS,
-  toTask,
   getTask,
   applyUpdate,
 } from "../shared/tasks.mjs";
 import { notify } from "../shared/notify.mjs";
 import {
-  startDeadline,
   stopDeadline,
   restartDeadline,
 } from "../shared/deadlines.mjs";
+
+import { toTaskResponse } from "../shared/attachments.mjs";
 
 export const handler = async (event) => {
   try {
@@ -34,7 +34,7 @@ export const handler = async (event) => {
       return json(409, { error: "Archived tasks are read-only" });
     }
     if (task.status === input.status) {
-      return json(200, toTask(task));
+      return json(200, await toTaskResponse(task));
     }
 
     const allowed = MEMBER_STATUS_TRANSITIONS[task.status] ?? [];
@@ -73,7 +73,7 @@ export const handler = async (event) => {
         message: `${user.name || "A team member"} moved "${task.title}" from ${STATUS_LABELS[task.status]} to ${STATUS_LABELS[input.status]}.`,
       });
     }
-    return json(200, toTask(updated));
+    return json(200, awaittoTaskResponse(updated));
   } catch (error) {
     if (error.name === "ConditionalCheckFailedException") {
       return json(409, {

@@ -1,7 +1,8 @@
 import { QueryCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { getUser } from "../shared/auth.mjs";
 import { json } from "../shared/http.mjs";
-import { db, TABLE_NAME, STATUSES, isValidDate, toTask } from "../shared/tasks.mjs";
+import { db, TABLE_NAME, STATUSES, isValidDate } from "../shared/tasks.mjs";
+import { toTaskResponse } from "../shared/attachments.mjs";
 
 const findTasks = async ({ assigneeId, status, dueBefore, dueAfter }) => {
   const names = {};
@@ -70,9 +71,14 @@ export const handler = async (event) => {
     const query = event.queryStringParameters ?? {};
 
     if (query.status && !STATUSES.includes(query.status)) {
-      return json(400, { error: `status must be one of: ${STATUSES.join(", ")}` });
+      return json(400, {
+        error: `status must be one of: ${STATUSES.join(", ")}`,
+      });
     }
-    if ((query.dueBefore && !isValidDate(query.dueBefore)) || (query.dueAfter && !isValidDate(query.dueAfter))) {
+    if (
+      (query.dueBefore && !isValidDate(query.dueBefore)) ||
+      (query.dueAfter && !isValidDate(query.dueAfter))
+    ) {
       return json(400, { error: "dueBefore and dueAfter must be YYYY-MM-DD" });
     }
 
@@ -83,7 +89,7 @@ export const handler = async (event) => {
       dueAfter: query.dueAfter,
     });
 
-    return json(200, tasks.map(toTask));
+    return json(200, await Promise.all(tasks.map(toTaskResponse)));
   } catch (error) {
     console.error(error);
     return json(500, { error: "Internal Server Error" });
