@@ -69,7 +69,7 @@ const TaskDetails = ({ task, tasks, now, nameOf, isAdmin, members = [], pending,
           {task.attachment && (
             <>
               <h2 className='details-section'>Attachment</h2>
-              <a className='attachment-card' href={task.attachment.url} download={task.attachment.name} aria-label={`Download ${task.attachment.name}`}>
+              <a className='attachment-card' href={task.attachment.url} download={task.attachment.name} target='_blank' rel='noopener noreferrer' aria-label={`Download ${task.attachment.name}`}>
                 <span className='attachment-icon'><Icon name='paperclip' size={18} /></span>
                 <span className='attachment-meta'><strong>{task.attachment.name}</strong><span>{formatBytes(task.attachment.size)}</span></span>
                 <Icon name='download' size={18} />

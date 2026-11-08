@@ -77,6 +77,34 @@ const statusMessage = (status) => {
 
 const TASK_FIELDS = ['title', 'description', 'category', 'priority', 'dueDate']
 
+// Must match the backend's ALLOWED_TYPES and MAX_SIZE (backend/functions/shared/attachments.mjs).
+const ATTACHMENT_TYPES = [
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+  'image/webp',
+  'application/pdf',
+  'text/plain',
+  'text/csv',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/zip',
+]
+const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024
+const UPLOAD_FAILED = 'The file could not be uploaded.'
+const CREATED_WITHOUT_ATTACHMENT = 'The task was created, but the attachment couldn’t be saved. Open the task to try again.'
+
+const isFile = (value) => typeof File !== 'undefined' && value instanceof File
+
+const validateAttachment = (file) => {
+  if (!ATTACHMENT_TYPES.includes(file.type)) {
+    throw new ApiError('This file type isn’t allowed. Use an image, PDF, text, CSV, Word, Excel or ZIP file.', 400)
+  }
+  if (file.size > MAX_ATTACHMENT_SIZE) throw new ApiError('Files must be 10 MB or smaller.', 400)
+}
+
 // '' is what a "no assignee" option sends; the backend only accepts a user id or null.
 const normalizeAssignee = (assigneeId) => (assigneeId === '' || assigneeId === undefined ? null : assigneeId)
 
@@ -194,17 +222,54 @@ export const createHttpAdapter = ({ baseUrl = '', userPoolId, userPoolClientId }
     getSession,
   }
 
+  // Admin only. Asks the backend for a signed S3 URL, then uploads the file straight to S3
+  // (without the Authorization header). Resolves to { key, name } for PATCH /tasks/{id}.
+  const uploadAttachment = async (taskId, file) => {
+    validateAttachment(file)
+    const { key, uploadUrl, headers } = await request('POST', taskPath(taskId, '/attachment'), {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    })
+    let response
+    try {
+      response = await fetch(uploadUrl, { method: 'PUT', headers: headers ?? { 'Content-Type': file.type }, body: file })
+    } catch (error) {
+      logDevError('attachment upload failed to send', error)
+      throw new ApiError(UPLOAD_FAILED, 0)
+    }
+    if (!response.ok) {
+      logDevError(`attachment upload returned ${response.status}`, await response.text().catch(() => ''))
+      throw new ApiError(UPLOAD_FAILED, response.status)
+    }
+    return { key, name: file.name }
+  }
+
   const tasks = {
     list: () => request('GET', '/tasks'),
     get: (id) => request('GET', taskPath(id)),
-    // Attachments aren't supported by the backend yet, so input.attachment is ignored.
-    create: (input) => {
+    // Creates the task, then uploads input.attachment (if a File) and attaches it. If that second
+    // step fails the task still exists, so the error says so to avoid a duplicate being created.
+    create: async (input) => {
       const assigneeId = normalizeAssignee(input.assigneeId)
-      return request('POST', '/tasks', { ...pickTaskFields(input), ...(assigneeId !== null && { assigneeId }) })
+      // Reject a disallowed file before the task exists.
+      if (isFile(input.attachment)) validateAttachment(input.attachment)
+      const task = await request('POST', '/tasks', { ...pickTaskFields(input), ...(assigneeId !== null && { assigneeId }) })
+      if (!isFile(input.attachment)) return task
+      try {
+        const attachment = await uploadAttachment(task.id, input.attachment)
+        return await request('PATCH', taskPath(task.id), { attachment })
+      } catch (error) {
+        logDevError('attaching a file to the new task failed', error)
+        throw new ApiError(CREATED_WITHOUT_ATTACHMENT, error instanceof ApiError ? error.status : 0)
+      }
     },
-    // Edits fields, then the assignee if the patch has one. Attachment changes are ignored.
+    // Edits fields (and the attachment), then the assignee if the patch has one.
+    // patch.attachment: File = upload and attach/replace, null = remove, omitted = keep.
     update: async (id, patch) => {
       const fields = pickTaskFields(patch)
+      if (isFile(patch.attachment)) fields.attachment = await uploadAttachment(id, patch.attachment)
+      else if (patch.attachment === null) fields.attachment = null
       let task = null
       if (Object.keys(fields).length > 0) task = await request('PATCH', taskPath(id), fields)
       if ('assigneeId' in patch) {
