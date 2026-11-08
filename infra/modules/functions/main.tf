@@ -94,6 +94,21 @@ locals {
       role    = "notifications"
       env     = local.notifications_env
     }
+    list_notifications = {
+      handler = "notifications/list_notifications.handler"
+      role    = "notifications"
+      env     = local.notifications_env
+    }
+    mark_read = {
+      handler = "notifications/mark_read.handler"
+      role    = "notifications"
+      env     = local.notifications_env
+    }
+    mark_all_read = {
+      handler = "notifications/mark_all_read.handler"
+      role    = "notifications"
+      env     = local.notifications_env
+    }
   }
 }
 
