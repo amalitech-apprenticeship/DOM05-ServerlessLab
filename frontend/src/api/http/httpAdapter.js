@@ -123,6 +123,8 @@ export const createHttpAdapter = ({ baseUrl = '', userPoolId, userPoolClientId }
 
   const taskPath = (id, suffix = '') => `/tasks/${encodeURIComponent(id)}${suffix}`
   const memberPath = (id) => `/members/${encodeURIComponent(id)}`
+  // Notification ids contain ':' and '#', so they must be encoded or the browser drops the part after '#'.
+  const notificationPath = (id) => `/notifications/${encodeURIComponent(id)}`
 
   const getSession = async () => {
     const idToken = await getIdToken()
@@ -240,14 +242,19 @@ export const createHttpAdapter = ({ baseUrl = '', userPoolId, userPoolClientId }
     },
   }
 
-  return {
-    auth,
-    users,
-    tasks,
-    notifications: {
-      list: notImplemented('notifications.list'),
-      markRead: notImplemented('notifications.markRead'),
-      markAllRead: notImplemented('notifications.markAllRead'),
+  // The signed-in user's notifications; for admins this includes those sent to the shared "admin" recipient.
+  const notifications = {
+    // Newest first.
+    list: () => request('GET', '/notifications'),
+    markRead: async (id) => {
+      const result = await request('PATCH', notificationPath(id))
+      return { id: result?.id ?? id }
+    },
+    markAllRead: async () => {
+      await request('PATCH', '/notifications')
+      return {}
     },
   }
+
+  return { auth, users, tasks, notifications }
 }

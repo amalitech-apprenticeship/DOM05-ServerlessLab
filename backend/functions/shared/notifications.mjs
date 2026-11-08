@@ -1,10 +1,15 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  QueryCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
 
 export const db = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE_NAME = process.env.NOTIFICATIONS_TABLE_NAME;
 
-export const recipientsFor = (user) => (user.isAdmin ? [user.id, "admin"] : [user.id]);
+export const recipientsFor = (user) =>
+  user.isAdmin ? [user.id, "admin"] : [user.id];
 
 export const toNotification = (item) => ({
   id: item.id,
@@ -17,7 +22,10 @@ export const toNotification = (item) => ({
   read: item.read === true,
 });
 
-export const queryNotifications = async (recipientId, { unreadOnly = false } = {}) => {
+export const queryNotifications = async (
+  recipientId,
+  { unreadOnly = false } = {},
+) => {
   const params = {
     TableName: TABLE_NAME,
     KeyConditionExpression: "#recipientId = :recipientId",
