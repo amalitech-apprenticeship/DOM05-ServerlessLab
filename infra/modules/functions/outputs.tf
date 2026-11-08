@@ -7,3 +7,9 @@ output "functions_details" {
     }
   }
 }
+output "deadline_check_function" {
+  value = {
+    name = aws_lambda_function.deadline_check.function_name
+    arn  = aws_lambda_function.deadline_check.arn
+  }
+}

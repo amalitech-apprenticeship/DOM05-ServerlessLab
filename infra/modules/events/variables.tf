@@ -8,3 +8,10 @@ variable "save_notification_function" {
     arn  = string
   })
 }
+
+variable "deadline_check_function" {
+  type = object({
+    name = string
+    arn  = string
+  })
+}

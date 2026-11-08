@@ -30,6 +30,7 @@ module "api" {
 module "events" {
   source      = "../../modules/events"
   admin_email = var.admin_email
+  deadline_check_function = module.functions.deadline_check_function
 
   save_notification_function = {
     name = module.functions.functions_details["save_notification"].name
