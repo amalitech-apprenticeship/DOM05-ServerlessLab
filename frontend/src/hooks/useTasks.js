@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApi } from '../api/ApiContext'
+import { userMessage } from '../utils/errors'
 
 export const POLL_INTERVAL_MS = Number(import.meta.env.VITE_POLL_INTERVAL_MS ?? 15000)
 
@@ -21,7 +22,7 @@ export const useTasks = ({ pollMs = 0 } = {}) => {
       setTasks(result)
       setError('')
     } catch (err) {
-      if (requestId === latestRequest.current) setError(err.message)
+      if (requestId === latestRequest.current) setError(userMessage(err))
     } finally {
       if (requestId === latestRequest.current) setLoading(false)
     }

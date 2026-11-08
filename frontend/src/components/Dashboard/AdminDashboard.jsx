@@ -19,12 +19,13 @@ import { ViewSkeleton } from '../others/LoadingSkeletons'
 import { useNow } from '../../hooks/useNow'
 import { TASK_STATUS } from '../../api/contract'
 import { makeNameOf, matchesSearch } from '../../utils/people'
+import { userMessage } from '../../utils/errors'
 
 const AdminDashboard = () => {
   const { user } = useAuth()
   const now = useNow()
   const { tasks, loading, error, refresh, createTask, updateTask, assignTask, updateTaskStatus, archiveTask, unarchiveTask, deleteTask, addComment, deleteComment } = useTasks({ pollMs: POLL_INTERVAL_MS })
-  const { members, everyone, loading: membersLoading, error: membersError, createMember, updateMember, deactivateMember, reactivateMember } = useMembers()
+  const { members, everyone, loading: membersLoading, error: membersError, createMember, updateMember, canUpdateMember, deactivateMember, reactivateMember } = useMembers()
   const { notifications, loading: notificationsLoading, toasts, markRead, markAllRead, dismissToast } = useNotifications({ onNew: refresh })
   const [view, setView] = useState('dashboard')
   const [selectedId, setSelectedId] = useState(null)
@@ -61,7 +62,7 @@ const AdminDashboard = () => {
       await fn(...args)
       setActionError('')
     } catch (err) {
-      setActionError(err.message)
+      setActionError(userMessage(err))
     } finally {
       setPending(false)
     }
@@ -130,7 +131,7 @@ const AdminDashboard = () => {
         </div>
       )}
       {view === 'team' && (
-        <TeamMembers members={everyone} tasks={tasks} loading={membersLoading} error={membersError} onCreate={createMember} onUpdate={updateMember} onDeactivate={deactivateTeamMember} onReactivate={reactivateMember} />
+        <TeamMembers members={everyone} tasks={tasks} loading={membersLoading} error={membersError} onCreate={createMember} onUpdate={canUpdateMember ? updateMember : null} onDeactivate={deactivateTeamMember} onReactivate={reactivateMember} />
       )}
       {view !== 'team' && (loading ? <ViewSkeleton view={view} admin /> : (
         <>

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { TASK_PRIORITY, TASK_PRIORITY_LABELS } from '../../api/contract'
 import Icon from '../Layout/Icon'
 import { MAX_ATTACHMENT_BYTES, formatBytes } from '../../utils/files'
+import { userMessage } from '../../utils/errors'
 
 const emptyForm = { title: '', description: '', category: '', dueDate: '', priority: TASK_PRIORITY.MEDIUM, assigneeId: '' }
 
@@ -45,7 +46,7 @@ const CreateTask = ({ task, members = [], categories = [], canEditAdminFields = 
     try {
       await onSubmit(toPayload(form, attachment, isEditing, canEditAdminFields))
     } catch (err) {
-      setError(err.message)
+      setError(userMessage(err))
       setSubmitting(false)
     }
   }

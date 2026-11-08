@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useApi } from '../api/ApiContext'
+import { userMessage } from '../utils/errors'
 
 // members: active (assignable). everyone: also deactivated members.
 export const useMembers = () => {
@@ -13,7 +14,7 @@ export const useMembers = () => {
       setEveryone(await api.users.listMembers())
       setError('')
     } catch (err) {
-      setError(err.message)
+      setError(userMessage(err))
     } finally {
       setLoading(false)
     }
@@ -49,5 +50,8 @@ export const useMembers = () => {
     return result
   }, [api, refresh])
 
-  return { members, everyone, loading, error, refresh, createMember, updateMember, deactivateMember, reactivateMember }
+  // False while the adapter has no backend route for editing a member (http mode).
+  const canUpdateMember = !api.users.updateMember.notImplemented
+
+  return { members, everyone, loading, error, refresh, createMember, updateMember, canUpdateMember, deactivateMember, reactivateMember }
 }

@@ -19,6 +19,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { ViewSkeleton } from '../others/LoadingSkeletons'
 import { TASK_STATUS } from '../../api/contract'
 import { greeting, makeNameOf, matchesSearch } from '../../utils/people'
+import { userMessage } from '../../utils/errors'
 
 const EmployeeDashboard = () => {
   const { user } = useAuth()
@@ -51,7 +52,7 @@ const EmployeeDashboard = () => {
       await updateTaskStatus(task.id, status)
       setActionError('')
     } catch (err) {
-      setActionError(err.message)
+      setActionError(userMessage(err))
     } finally {
       setPendingTaskId(null)
     }

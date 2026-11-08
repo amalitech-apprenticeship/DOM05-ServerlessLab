@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { userMessage } from '../../utils/errors'
 
 const MemberForm = ({ member, onSubmit, onCancel }) => {
   const [form, setForm] = useState({ name: member?.name || '', email: member?.email || '' })
@@ -15,7 +16,7 @@ const MemberForm = ({ member, onSubmit, onCancel }) => {
     try {
       await onSubmit(form)
     } catch (err) {
-      setError(err.message)
+      setError(userMessage(err))
       setSubmitting(false)
     }
   }

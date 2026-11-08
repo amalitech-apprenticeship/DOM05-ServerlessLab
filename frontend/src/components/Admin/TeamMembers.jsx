@@ -6,6 +6,7 @@ import Modal from '../Layout/Modal'
 import MemberForm from './MemberForm'
 import { TASK_STATUS } from '../../api/contract'
 import { formatDateTime } from '../../utils/dates'
+import { userMessage } from '../../utils/errors'
 
 const CreatedCredentials = ({ result, onDone }) => {
   const [copied, setCopied] = useState(false)
@@ -29,7 +30,7 @@ const CreatedCredentials = ({ result, onDone }) => {
             <div><dt>Temporary password</dt><dd><code>{result.temporaryPassword}</code></dd></div>
           </dl>
         </>
-      ) : <p className='muted'>An invitation has been sent to {result.user.email}.</p>}
+      ) : <p className='muted'>A temporary password was emailed to {result.user.email}. They’ll choose their own password the first time they sign in.</p>}
       <div className='form-buttons'>
         {result.temporaryPassword && <button type='button' className='btn btn-ghost' onClick={copy}>{copied ? 'Copied' : 'Copy details'}</button>}
         <button type='button' className='btn btn-primary' onClick={onDone}>Done</button>
@@ -38,7 +39,7 @@ const CreatedCredentials = ({ result, onDone }) => {
   )
 }
 
-// `members` includes deactivated members (with deactivatedAt).
+// `members` includes deactivated members (with deactivatedAt). Pass onUpdate={null} to hide editing.
 const TeamMembers = ({ members, tasks, loading, error, onCreate, onUpdate, onDeactivate, onReactivate }) => {
   const [modal, setModal] = useState(null) // null | { member } | { created }
   const [actionError, setActionError] = useState('')
@@ -78,7 +79,7 @@ const TeamMembers = ({ members, tasks, loading, error, onCreate, onUpdate, onDea
       setActionError('')
       setNotice(`${member.name} was deactivated.${result.unassignedTasks ? ` ${result.unassignedTasks} open ${result.unassignedTasks === 1 ? 'task is' : 'tasks are'} now unassigned.` : ''}`)
     } catch (err) {
-      setActionError(err.message)
+      setActionError(userMessage(err))
     }
   }
 
@@ -88,7 +89,7 @@ const TeamMembers = ({ members, tasks, loading, error, onCreate, onUpdate, onDea
       setActionError('')
       setNotice(`${member.name} was reactivated and can sign in again.`)
     } catch (err) {
-      setActionError(err.message)
+      setActionError(userMessage(err))
     }
   }
 
@@ -157,7 +158,7 @@ const TeamMembers = ({ members, tasks, loading, error, onCreate, onUpdate, onDea
                   <td>{doneCount(member)}</td>
                   <td className='nowrap'>{member.createdAt ? formatDateTime(member.createdAt) : '—'}</td>
                   <td className='row-actions'>
-                    <button type='button' className='icon-button' onClick={() => setModal({ member })} aria-label={`Edit ${member.name}`}><Icon name='edit' size={16} /></button>
+                    {onUpdate && <button type='button' className='icon-button' onClick={() => setModal({ member })} aria-label={`Edit ${member.name}`}><Icon name='edit' size={16} /></button>}
                     {member.deactivatedAt
                       ? <button type='button' className='btn btn-sm btn-ghost' onClick={() => reactivate(member)} aria-label={`Reactivate ${member.name}`}><Icon name='restore' size={14} /> Reactivate</button>
                       : <button type='button' className='icon-button danger' onClick={() => deactivate(member)} aria-label={`Deactivate ${member.name}`} title='Deactivate'><Icon name='userOff' size={16} /></button>}

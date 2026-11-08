@@ -25,6 +25,13 @@ const AuthProvider = ({ children }) => {
     return session.user
   }, [api])
 
+  // Finishes a first sign-in after login rejected with code 'NEW_PASSWORD_REQUIRED' (http mode only).
+  const completeNewPassword = useCallback(async (newPassword) => {
+    const session = await api.auth.completeNewPassword(newPassword)
+    setUser(session.user)
+    return session.user
+  }, [api])
+
   const logout = useCallback(async () => {
     try {
       await api.auth.logout()
@@ -33,7 +40,10 @@ const AuthProvider = ({ children }) => {
     }
   }, [api])
 
-  const value = useMemo(() => ({ user, ready, login, logout }), [user, ready, login, logout])
+  const value = useMemo(
+    () => ({ user, ready, login, completeNewPassword, logout }),
+    [user, ready, login, completeNewPassword, logout]
+  )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

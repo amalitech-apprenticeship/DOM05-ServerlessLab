@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { ADMIN, AMIT, createTestApi } from './helpers'
 import { ApiConfigError, createApi } from '../api'
+import { ApiError } from '../api/contract'
 import { hashPassword, verifyPassword } from '../api/mock/passwords'
 
 const storedUsers = () => JSON.parse(localStorage.getItem('ets.users'))
@@ -80,7 +81,14 @@ describe('Security: the insecure mock never backs a production build (review fin
 
   it('uses the http adapter when configured, and the mock in development', async () => {
     const http = createApi({ PROD: true, VITE_API_MODE: 'http', VITE_API_BASE_URL: 'https://api.example.com' })
-    await expect(http.auth.login('a', 'b')).rejects.toMatchObject({ status: 501 })
+    // No Cognito pool is configured, so Amplify fails locally: an ApiError, and no network call.
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    try {
+      await expect(http.auth.login('a', 'b')).rejects.toBeInstanceOf(ApiError)
+      expect(fetchSpy).not.toHaveBeenCalled()
+    } finally {
+      fetchSpy.mockRestore()
+    }
     expect(createApi({ PROD: false })).toHaveProperty('tasks.archive')
     expect(() => createApi({ VITE_API_MODE: 'graphql' })).toThrow(/Unknown VITE_API_MODE/)
   })

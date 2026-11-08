@@ -4,6 +4,7 @@ import Icon from '../Layout/Icon'
 import { formatDateTime } from '../../utils/dates'
 import { MAX_ATTACHMENT_BYTES, formatBytes } from '../../utils/files'
 import { useAuth } from '../../context/AuthContext'
+import { userMessage } from '../../utils/errors'
 
 const AttachmentLink = ({ attachment }) => (
   <a className='attachment-card attachment-compact' href={attachment.url} download={attachment.name} aria-label={`Download ${attachment.name}`}>
@@ -44,7 +45,7 @@ const Comments = ({ task, nameOf, isAdmin, readOnly, onAdd, onDelete }) => {
       setBody('')
       setFile(null)
     } catch (err) {
-      setError(err.message)
+      setError(userMessage(err))
     } finally {
       setPosting(false)
     }
@@ -56,7 +57,7 @@ const Comments = ({ task, nameOf, isAdmin, readOnly, onAdd, onDelete }) => {
       await onDelete(comment.id)
       setError('')
     } catch (err) {
-      setError(err.message)
+      setError(userMessage(err))
     }
   }
 
