@@ -16,3 +16,7 @@ variable "user_pool_id" {
 variable "topic_arn" {
   type = string
 }
+
+variable "state_machine_arn" {
+  type = string
+}

@@ -9,6 +9,11 @@ import {
   applyUpdate,
 } from "../shared/tasks.mjs";
 import { notify } from "../shared/notify.mjs";
+import {
+  startDeadline,
+  stopDeadline,
+  restartDeadline,
+} from "../shared/deadlines.mjs";
 
 export const handler = async (event) => {
   try {
@@ -54,6 +59,11 @@ export const handler = async (event) => {
         conditionValues: { ":current": task.status },
       },
     );
+    if (input.status === "completed") {
+      await stopDeadline(updated);
+    } else if (task.status === "completed") {
+      await restartDeadline(updated);
+    }
     if (!user.isAdmin) {
       await notify({
         recipientId: "admin",

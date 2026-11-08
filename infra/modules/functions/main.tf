@@ -12,15 +12,17 @@ locals {
   }
 
   tasks_env = tomap({
-    TASKS_TABLE_NAME = var.tables.tasks.name
-    TOPIC_ARN        = var.topic_arn
+    TASKS_TABLE_NAME  = var.tables.tasks.name
+    TOPIC_ARN         = var.topic_arn
+    STATE_MACHINE_ARN = var.state_machine_arn
   })
 
   members_env = tomap({
-    USERS_TABLE_NAME = var.tables.users.name
-    TASKS_TABLE_NAME = var.tables.tasks.name
-    USER_POOL_ID     = var.user_pool_id
-    TOPIC_ARN        = var.topic_arn
+    USERS_TABLE_NAME  = var.tables.users.name
+    TASKS_TABLE_NAME  = var.tables.tasks.name
+    USER_POOL_ID      = var.user_pool_id
+    TOPIC_ARN         = var.topic_arn
+    STATE_MACHINE_ARN = var.state_machine_arn
   })
 
   notifications_env = tomap({

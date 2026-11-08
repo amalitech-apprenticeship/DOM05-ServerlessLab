@@ -4,6 +4,11 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 
 import { notifyAssigned } from "../shared/notify.mjs";
+import {
+  startDeadline,
+  stopDeadline,
+  restartDeadline,
+} from "../shared/deadlines.mjs";
 
 const PRIORITIES = ["low", "medium", "high", "urgent"];
 const DATE_FORMAT = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD
@@ -111,6 +116,7 @@ export const handler = async (event) => {
 
     if (assigneeId) {
       await notifyAssigned(task);
+      await startDeadline(task);
     }
 
     return json(201, { ...task, assigneeId, archivedAt: null, comments: [] });

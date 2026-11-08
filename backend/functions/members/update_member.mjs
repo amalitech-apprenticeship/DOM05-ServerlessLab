@@ -16,9 +16,16 @@ import {
   getMemberRow,
   tasksForMember,
 } from "../shared/users.mjs";
+import {
+  startDeadline,
+  stopDeadline,
+  restartDeadline,
+} from "../shared/deadlines.mjs";
 
 const unassignOpenTasks = async (memberId, adminId, at) => {
-  const openTasks = (await tasksForMember(memberId)).filter((task) => task.status !== "completed");
+  const openTasks = (await tasksForMember(memberId)).filter(
+    (task) => task.status !== "completed",
+  );
 
   for (const task of openTasks) {
     await db.send(
@@ -37,7 +44,15 @@ const unassignOpenTasks = async (memberId, adminId, at) => {
           ":new": "new",
           ":at": at,
           ":empty": [],
-          ":entry": [{ at, by: adminId, action: "assigned", assigneeId: null, status: "new" }],
+          ":entry": [
+            {
+              at,
+              by: adminId,
+              action: "assigned",
+              assigneeId: null,
+              status: "new",
+            },
+          ],
         },
       }),
     );
@@ -70,8 +85,18 @@ export const handler = async (event) => {
 
     if (!input.active) {
       const at = new Date().toISOString();
-      await cognito.send(new AdminDisableUserCommand({ UserPoolId: USER_POOL_ID, Username: row.username }));
-      await cognito.send(new AdminUserGlobalSignOutCommand({ UserPoolId: USER_POOL_ID, Username: row.username }));
+      await cognito.send(
+        new AdminDisableUserCommand({
+          UserPoolId: USER_POOL_ID,
+          Username: row.username,
+        }),
+      );
+      await cognito.send(
+        new AdminUserGlobalSignOutCommand({
+          UserPoolId: USER_POOL_ID,
+          Username: row.username,
+        }),
+      );
 
       const result = await db.send(
         new UpdateCommand({
@@ -88,7 +113,14 @@ export const handler = async (event) => {
       return json(200, { ...toUser(result.Attributes), unassignedTasks });
     }
 
-    await cognito.send(new AdminEnableUserCommand({ UserPoolId: USER_POOL_ID, Username: row.username }));
+    await cognito.send(
+      new AdminEnableUserCommand({
+        UserPoolId: USER_POOL_ID,
+        Username: row.username,
+      }),
+    );
+
+    await stopDeadline(task, { save: false });
 
     const result = await db.send(
       new UpdateCommand({

@@ -2,6 +2,11 @@ import { DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import { getUser } from "../shared/auth.mjs";
 import { json } from "../shared/http.mjs";
 import { db, TABLE_NAME } from "../shared/tasks.mjs";
+import {
+  startDeadline,
+  stopDeadline,
+  restartDeadline,
+} from "../shared/deadlines.mjs";
 
 export const handler = async (event) => {
   try {
@@ -10,13 +15,16 @@ export const handler = async (event) => {
       return json(403, { error: "Only admins can delete tasks" });
     }
 
-    await db.send(
+    const result = await db.send(
       new DeleteCommand({
         TableName: TABLE_NAME,
         Key: { id: event.pathParameters.taskId },
         ConditionExpression: "attribute_exists(id)",
+        ReturnValues: "ALL_OLD",
       }),
     );
+
+    await stopDeadline(result.Attributes, { save: false });
 
     return { statusCode: 204 };
   } catch (error) {

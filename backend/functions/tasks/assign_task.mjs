@@ -2,6 +2,11 @@ import { getUser } from "../shared/auth.mjs";
 import { json, parseBody } from "../shared/http.mjs";
 import { toTask, getTask, applyUpdate } from "../shared/tasks.mjs";
 import { notifyAssigned } from "../shared/notify.mjs";
+import {
+  startDeadline,
+  stopDeadline,
+  restartDeadline,
+} from "../shared/deadlines.mjs";
 
 export const handler = async (event) => {
   try {
@@ -48,6 +53,7 @@ export const handler = async (event) => {
 
     if (assigneeId) {
       await notifyAssigned(updated);
+      await restartDeadline(updated);
     }
     return json(200, toTask(updated));
   } catch (error) {

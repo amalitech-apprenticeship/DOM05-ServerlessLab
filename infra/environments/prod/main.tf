@@ -1,14 +1,15 @@
 module "storage" {
-  source = "../../modules/storage"
+  source          = "../../modules/storage"
   allowed_origins = var.allowed_origins
 }
 
 module "functions" {
-  source = "../../modules/functions"
-  tables = module.storage.tables
-  user_pool_arn = module.auth.cognito_user_pool_arn
-  user_pool_id = module.auth.cognito_user_pool_id
-  topic_arn = module.events.topic_arn
+  source            = "../../modules/functions"
+  tables            = module.storage.tables
+  user_pool_arn     = module.auth.cognito_user_pool_arn
+  user_pool_id      = module.auth.cognito_user_pool_id
+  topic_arn         = module.events.topic_arn
+  state_machine_arn = module.events.state_machine_arn
 }
 
 module "auth" {
@@ -23,13 +24,13 @@ module "api" {
   allow_origins = var.allowed_origins
   allow_headers = var.allowed_headers
   allow_methods = var.allowed_methods
-  jwt_audience = [module.auth.cognito_user_pool_client_id]
-  jwt_issuer = module.auth.cognito_issuer_url
+  jwt_audience  = [module.auth.cognito_user_pool_client_id]
+  jwt_issuer    = module.auth.cognito_issuer_url
 }
 
 module "events" {
-  source      = "../../modules/events"
-  admin_email = var.admin_email
+  source                  = "../../modules/events"
+  admin_email             = var.admin_email
   deadline_check_function = module.functions.deadline_check_function
 
   save_notification_function = {

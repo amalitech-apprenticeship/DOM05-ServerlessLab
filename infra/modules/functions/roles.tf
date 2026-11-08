@@ -1,3 +1,7 @@
+locals {
+  deadline_executions_arn = "${replace(var.state_machine_arn, ":stateMachine:", ":execution:")}:*"
+}
+
 data "aws_iam_policy_document" "assume_role" {
   statement {
     effect  = "Allow"
@@ -28,6 +32,18 @@ data "aws_iam_policy_document" "tasks_access" {
     effect    = "Allow"
     actions   = ["sns:Publish"]
     resources = [var.topic_arn]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["states:StartExecution"]
+    resources = [var.state_machine_arn]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["states:StopExecution"]
+    resources = [local.deadline_executions_arn]
   }
 }
 
@@ -91,6 +107,12 @@ data "aws_iam_policy_document" "members_access" {
     effect    = "Allow"
     actions   = ["sns:Subscribe"]
     resources = [var.topic_arn]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["states:StopExecution"]
+    resources = [local.deadline_executions_arn]
   }
 }
 

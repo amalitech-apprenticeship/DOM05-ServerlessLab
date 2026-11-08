@@ -1,6 +1,17 @@
 import { getUser } from "../shared/auth.mjs";
 import { json, parseBody } from "../shared/http.mjs";
-import { PRIORITIES, isValidDate, toTask, getTask, applyUpdate } from "../shared/tasks.mjs";
+import {
+  PRIORITIES,
+  isValidDate,
+  toTask,
+  getTask,
+  applyUpdate,
+} from "../shared/tasks.mjs";
+import {
+  startDeadline,
+  stopDeadline,
+  restartDeadline,
+} from "../shared/deadlines.mjs";
 
 export const handler = async (event) => {
   try {
@@ -39,7 +50,9 @@ export const handler = async (event) => {
     }
     if (input.priority !== undefined) {
       if (!PRIORITIES.includes(input.priority)) {
-        return json(400, { error: `priority must be one of: ${PRIORITIES.join(", ")}` });
+        return json(400, {
+          error: `priority must be one of: ${PRIORITIES.join(", ")}`,
+        });
       }
       fields.priority = input.priority;
     }
@@ -54,8 +67,15 @@ export const handler = async (event) => {
       return json(400, { error: "Nothing to update" });
     }
 
-    const entry = { at: new Date().toISOString(), by: user.id, action: "edited" };
+    const entry = {
+      at: new Date().toISOString(),
+      by: user.id,
+      action: "edited",
+    };
     const updated = await applyUpdate(task.id, fields, entry);
+    if (fields.dueDate && fields.dueDate !== task.dueDate) {
+      await restartDeadline(updated);
+    }
 
     return json(200, toTask(updated));
   } catch (error) {
