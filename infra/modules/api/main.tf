@@ -16,6 +16,8 @@ locals {
     mark_read                = "PATCH /notifications/{notificationId}"
     mark_all_read            = "PATCH /notifications"
     create_attachment_upload = "POST /tasks/{taskId}/attachment"
+    add_comment              = "POST /tasks/{taskId}/comments"
+    delete_comment           = "DELETE /tasks/{taskId}/comments/{commentId}"
   }
 }
 

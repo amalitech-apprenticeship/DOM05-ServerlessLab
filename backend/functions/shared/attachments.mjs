@@ -8,6 +8,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { toTask } from "./tasks.mjs";
+import { commentsForTask } from "./comments.mjs";
 
 export const s3 = new S3Client({ requestChecksumCalculation: "WHEN_REQUIRED" });
 const BUCKET = process.env.ATTACHMENTS_BUCKET;
@@ -91,9 +92,10 @@ export const deleteAttachment = async (attachment) => {
   }
 };
 
-export const toTaskResponse = async (item) => {
+export const toTaskResponse = async (item, { comments } = {}) => {
   const task = toTask(item);
   delete task.executionArn;
+  task.comments = comments ?? (await commentsForTask(task.id));
 
   if (!task.attachment?.key) {
     return { ...task, attachment: null };

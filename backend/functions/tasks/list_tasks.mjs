@@ -3,6 +3,7 @@ import { getUser } from "../shared/auth.mjs";
 import { json } from "../shared/http.mjs";
 import { db, TABLE_NAME, STATUSES, isValidDate } from "../shared/tasks.mjs";
 import { toTaskResponse } from "../shared/attachments.mjs";
+import { commentsByTask } from "../shared/comments.mjs";
 
 const findTasks = async ({ assigneeId, status, dueBefore, dueAfter }) => {
   const names = {};
@@ -89,7 +90,15 @@ export const handler = async (event) => {
       dueAfter: query.dueAfter,
     });
 
-    return json(200, await Promise.all(tasks.map(toTaskResponse)));
+    const commentsFor = await commentsByTask();
+    return json(
+      200,
+      await Promise.all(
+        tasks.map((task) =>
+          toTaskResponse(task, { comments: commentsFor(task.id) }),
+        ),
+      ),
+    );
   } catch (error) {
     console.error(error);
     return json(500, { error: "Internal Server Error" });

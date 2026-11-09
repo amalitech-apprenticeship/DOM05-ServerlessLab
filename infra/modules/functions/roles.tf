@@ -51,6 +51,18 @@ data "aws_iam_policy_document" "tasks_access" {
     actions   = ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
     resources = ["${var.attachments_bucket.arn}/tasks/*"]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:Query",
+      "dynamodb:Scan",
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:DeleteItem"
+    ]
+    resources = [var.tables.comments.arn]
+  }
 }
 
 resource "aws_iam_role" "tasks" {

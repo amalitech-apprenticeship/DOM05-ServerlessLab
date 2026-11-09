@@ -3,6 +3,7 @@ import { getUser } from "../shared/auth.mjs";
 import { json } from "../shared/http.mjs";
 import { db, TABLE_NAME } from "../shared/tasks.mjs";
 import { stopDeadline } from "../shared/deadlines.mjs";
+import { removeTaskComments } from "../shared/comments.mjs";
 
 export const handler = async (event) => {
   try {
@@ -22,6 +23,7 @@ export const handler = async (event) => {
 
     await stopDeadline(result.Attributes, { save: false });
     await deleteAttachment(result.Attributes?.attachment);
+    await removeTaskComments(event.pathParameters.taskId);
 
     return { statusCode: 204 };
   } catch (error) {

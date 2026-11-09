@@ -12,10 +12,11 @@ locals {
   }
 
   tasks_env = tomap({
-    TASKS_TABLE_NAME   = var.tables.tasks.name
-    TOPIC_ARN          = var.topic_arn
-    STATE_MACHINE_ARN  = var.state_machine_arn
-    ATTACHMENTS_BUCKET = var.attachments_bucket.name
+    TASKS_TABLE_NAME    = var.tables.tasks.name
+    COMMENTS_TABLE_NAME = var.tables.comments.name
+    TOPIC_ARN           = var.topic_arn
+    STATE_MACHINE_ARN   = var.state_machine_arn
+    ATTACHMENTS_BUCKET  = var.attachments_bucket.name
   })
 
   members_env = tomap({
@@ -114,6 +115,16 @@ locals {
     }
     create_attachment_upload = {
       handler = "tasks/create_attachment_upload.handler"
+      role    = "tasks"
+      env     = local.tasks_env
+    }
+    add_comment = {
+      handler = "tasks/add_comment.handler"
+      role    = "tasks"
+      env     = local.tasks_env
+    }
+    delete_comment = {
+      handler = "tasks/delete_comment.handler"
       role    = "tasks"
       env     = local.tasks_env
     }
