@@ -9,3 +9,7 @@ output "cognito_user_pool_client_id" {
 output "api_gateway_invoke_url" {
   value = module.api.api_gateway_invoke_url
 }
+
+output "frontend_url" {
+  value = module.frontend.url
+}

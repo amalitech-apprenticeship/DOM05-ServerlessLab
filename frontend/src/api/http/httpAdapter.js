@@ -281,8 +281,17 @@ export const createHttpAdapter = ({ baseUrl = '', userPoolId, userPoolClientId }
     assign: (id, assigneeId) => request('PATCH', taskPath(id, '/assignee'), { assigneeId: normalizeAssignee(assigneeId) }),
     archive: notImplemented('tasks.archive'),
     unarchive: notImplemented('tasks.unarchive'),
-    addComment: notImplemented('tasks.addComment'),
-    deleteComment: notImplemented('tasks.deleteComment'),
+    // Comments are text-only here: files can only be attached to the task itself.
+    // Tagged so the comment form hides its "Attach file" option.
+    addComment: Object.assign(
+      async (id, input = {}) => {
+        if (isFile(input.attachment)) throw new ApiError('Files can only be attached to the task itself.', 400)
+        return request('POST', taskPath(id, '/comments'), { body: input.body })
+      },
+      { attachments: false }
+    ),
+    // Comment ids contain ':' and '#', so they must be encoded (like notification ids).
+    deleteComment: (id, commentId) => request('DELETE', taskPath(id, `/comments/${encodeURIComponent(commentId)}`)),
     remove: async (id) => {
       await request('DELETE', taskPath(id))
       return { id }

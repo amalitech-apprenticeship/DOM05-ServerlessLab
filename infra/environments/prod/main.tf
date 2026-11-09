@@ -1,6 +1,7 @@
 module "storage" {
   source          = "../../modules/storage"
-  allowed_origins = var.allowed_origins
+  allowed_origins = ["http://localhost:5173", module.frontend.url]
+
 }
 
 module "functions" {
@@ -22,7 +23,7 @@ module "api" {
 
   functions_details = module.functions.functions_details
 
-  allow_origins = var.allowed_origins
+  allow_origins = ["http://localhost:5173", module.frontend.url]
   allow_headers = var.allowed_headers
   allow_methods = var.allowed_methods
   jwt_audience  = [module.auth.cognito_user_pool_client_id]
@@ -38,4 +39,13 @@ module "events" {
     name = module.functions.functions_details["save_notification"].name
     arn  = module.functions.functions_details["save_notification"].arn
   }
+}
+
+module "frontend" {
+  source              = "../../frontend"
+  repository_url      = var.repository_url
+  github_token        = var.github_token
+  api_url             = module.api.api_gateway_invoke_url
+  user_pool_id        = module.auth.cognito_user_pool_id
+  user_pool_client_id = module.auth.cognito_user_pool_client_id
 }

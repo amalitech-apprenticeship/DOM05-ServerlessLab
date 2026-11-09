@@ -4,6 +4,7 @@ import Icon from '../Layout/Icon'
 import { formatDateTime } from '../../utils/dates'
 import { MAX_ATTACHMENT_BYTES, formatBytes } from '../../utils/files'
 import { useAuth } from '../../context/AuthContext'
+import { useApi } from '../../api/ApiContext'
 import { userMessage } from '../../utils/errors'
 
 const AttachmentLink = ({ attachment }) => (
@@ -17,6 +18,8 @@ const AttachmentLink = ({ attachment }) => (
 // onAdd({ body, attachment }) and onDelete(commentId) return promises; errors are shown inline.
 const Comments = ({ task, nameOf, isAdmin, readOnly, onAdd, onDelete }) => {
   const { user: currentUser } = useAuth()
+  // The http adapter tags addComment when comments can't carry files.
+  const canAttach = useApi().tasks.addComment.attachments !== false
   const [body, setBody] = useState('')
   const [file, setFile] = useState(null)
   const [error, setError] = useState('')
@@ -98,7 +101,7 @@ const Comments = ({ task, nameOf, isAdmin, readOnly, onAdd, onDelete }) => {
                 <span className='muted'>{formatBytes(file.size)}</span>
                 <button type='button' className='link-button danger' onClick={() => setFile(null)}>Remove</button>
               </span>
-            ) : (
+            ) : canAttach && (
               <label className='btn btn-ghost btn-sm'>
                 <Icon name='paperclip' size={14} /> Attach file
                 <input type='file' className='sr-only' aria-label='Attach a file to the comment' onChange={pickFile} />

@@ -13,3 +13,12 @@ variable "allowed_headers" {
 variable "admin_email" {
   type = string
 }
+
+variable "repository_url" {
+  type        = string
+}
+
+variable "github_token" {
+  type      = string
+  sensitive = true
+}
